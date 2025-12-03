@@ -23,4 +23,27 @@ async function authMiddleware(req, res, next) {
   }
 }
 
-module.exports = { authMiddleware };
+
+function adminAuth(req, res, next) {
+  try {
+    const auth = req.headers.authorization;
+
+    if (!auth || !auth.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "No token" });
+    }
+
+    const token = auth.split(" ")[1];
+    const decoded = jwt.verify(token, process.env.ADMIN_SECRET);
+
+    if (!decoded.admin) {
+      return res.status(403).json({ message: "Not admin" });
+    }
+
+    req.admin = true;
+    next();
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
+  }
+}
+
+module.exports = { authMiddleware,adminAuth  };
