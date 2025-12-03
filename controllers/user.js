@@ -3,13 +3,15 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { authMiddleware } = require("../middleware/auth");
+const { sendSignupEmail } = require("../providers/emailProvider");
 
 const router = express.Router();
 
 
+
 router.post("/signup", async (req, res) => {
   try {
-    const { login_id, name, email, password } = req.body;
+    const { login_id, name, email, mobile, password } = req.body;
 
     const exists = await User.findOne({ login_id });
     if (exists) return res.status(400).json({ message: "User exists" });
@@ -20,14 +22,26 @@ router.post("/signup", async (req, res) => {
       login_id,
       name,
       email,
+      mobile,
       password: hashed
     });
+
+    // ⭐ SEND SIGNUP EMAIL WITH PASSWORD
+    if (email) {
+      sendSignupEmail({
+        email,
+        name,
+        login_id,
+        password   // PLAIN TEXT here
+      });
+    }
 
     res.status(201).json({ message: "User created", user });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
+
 
 /* LOGIN */
 router.post("/login", async (req, res) => {

@@ -9,11 +9,62 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-exports.sendPasswordChangeEmail = async ({email, name}) => {
+/* SEND SIGNUP EMAIL WITH PASSWORD */
+exports.sendSignupEmail = async ({ email, name, login_id, password }) => {
   await transporter.sendMail({
     from: process.env.EMAIL_USER,
     to: email,
-    subject: "Password Changed",
-    html: `<h3>Hello ${name}</h3><p>Your password was updated successfully.</p>`
+    subject: "Welcome! Your Account Has Been Created ✔",
+    html: `
+      <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:10px;
+            border:1px solid #e8e8e8;font-family:Arial,Helvetica,sans-serif;">
+
+  <!-- Header -->
+  <div style="background:#ff4da6;padding:20px;border-radius:10px 10px 0 0;
+              text-align:center;color:white;">
+    <h1 style="margin:0;font-size:26px;">💄 Makeup & Nails Studio</h1>
+    <p style="margin:0;font-size:14px;opacity:0.9;">Your beauty, our responsibility</p>
+  </div>
+
+  <!-- Body -->
+  <div style="padding:25px;color:#333;line-height:1.6;">
+
+    <h2 style="margin-top:0;color:#ff007f;">Welcome {{name}}!</h2>
+
+    <p>
+      Your account has been successfully created.  
+      Please keep your login details safe.
+    </p>
+
+    <div style="background:#fff5fa;padding:15px;border-radius:8px;
+                border-left:5px solid #ff4da6;margin:20px 0;">
+      <p style="margin:5px 0;"><b>Login ID:</b> {{login_id}}</p>
+      <p style="margin:5px 0;"><b>Password:</b> {{password}}</p>
+    </div>
+
+    <p>If this was not you, please contact support immediately.</p>
+
+    <a href="#" style="
+      display:inline-block;
+      background:#ff4da6;
+      color:white;
+      padding:12px 25px;
+      border-radius:6px;
+      text-decoration:none;
+      font-weight:bold;
+      margin-top:15px;">
+      Go to Login →
+    </a>
+
+  </div>
+
+  <!-- Footer -->
+  <div style="background:#f8f8f8;padding:15px;text-align:center;
+              font-size:13px;color:#555;border-radius:0 0 10px 10px;">
+    © 2025 Makeup & Nails Booking • All Rights Reserved  
+  </div>
+</div>
+
+    `
   });
 };
