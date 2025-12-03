@@ -26,7 +26,7 @@ router.post("/signup", async (req, res) => {
       password: hashed
     });
 
-    // ⭐ SEND SIGNUP EMAIL WITH PASSWORD
+   
     if (email) {
       sendSignupEmail({
         email,

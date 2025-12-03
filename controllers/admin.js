@@ -29,7 +29,22 @@ router.get("/bookings", adminAuth, async (req, res) => {
     .populate("user_id", "name login_id email")
     .sort({ createdAt: -1 });
 
-  res.json({ bookings });
+
+  const formatted = bookings.map(b => ({
+    id: b._id,
+    userName: b.user_id?.name,
+    email: b.user_id?.email,
+    login_id: b.user_id?.login_id,
+    phone: b.phone,          
+    service: b.service,
+    date: b.date,
+    time: b.time,
+    notes: b.notes,
+    status: b.status,
+    createdAt: b.createdAt
+  }));
+
+  res.json({ bookings: formatted });
 });
 
 
