@@ -26,17 +26,17 @@ router.post("/login", async (req, res) => {
 
 router.get("/bookings", adminAuth, async (req, res) => {
   const bookings = await Booking.find()
-    .populate("user_id", "name login_id email")
+    .populate("user_id", "name login_id email mobile")   // ⭐ added mobile
     .sort({ createdAt: -1 });
-
 
   const formatted = bookings.map(b => ({
     id: b._id,
     userName: b.user_id?.name,
     email: b.user_id?.email,
     login_id: b.user_id?.login_id,
-    phone: b.phone,          
-    service: b.service,
+    mobile: b.user_id?.mobile,      // ⭐ added mobile number
+    service_type: b.service_type,
+    service_name: b.service_name,
     date: b.date,
     time: b.time,
     notes: b.notes,
