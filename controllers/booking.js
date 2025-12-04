@@ -52,7 +52,8 @@ router.post("/create", authMiddleware, async (req, res) => {
 
 
 router.get("/bookings", authMiddleware, async (req, res) => {
-  const bookings = await Booking.find().sort({ createdAt: -1 });
+  const bookings = await Booking.find({ user_id: req.user.id })
+    .sort({ createdAt: -1 });
 
   const formatted = bookings.map(b => ({
     id: b._id,
@@ -71,6 +72,8 @@ router.get("/bookings", authMiddleware, async (req, res) => {
 
   res.json({ bookings: formatted });
 });
+
+
 
 
 module.exports = router;
