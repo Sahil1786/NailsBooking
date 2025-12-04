@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const { adminAuth, } = require("../middleware/auth");
 const Booking = require("../models/Booking");
 const User = require("../models/User");
+const { sendStatusChangeEmail, sendDateTimeChangeEmail} = require("../providers/emailProvider");
+
 
 const router = express.Router();
 
@@ -25,16 +27,16 @@ router.post("/login", async (req, res) => {
 
 
 router.get("/bookings", adminAuth, async (req, res) => {
-  const bookings = await Booking.find()
-    .populate("user_id", "name login_id email mobile")   // ⭐ added mobile
-    .sort({ createdAt: -1 });
+  const bookings = await Booking.find().sort({ createdAt: -1 });
 
   const formatted = bookings.map(b => ({
     id: b._id,
-    userName: b.user_id?.name,
-    email: b.user_id?.email,
-    login_id: b.user_id?.login_id,
-    mobile: b.user_id?.mobile,      // ⭐ added mobile number
+
+    // ⭐ direct data from booking document
+    userName: b.user_name,
+    email: b.user_email,
+    mobile: b.user_mobile,
+
     service_type: b.service_type,
     service_name: b.service_name,
     date: b.date,
@@ -50,7 +52,7 @@ router.get("/bookings", adminAuth, async (req, res) => {
 
 router.put("/bookings/:id/status", adminAuth, async (req, res) => {
   try {
-    const { status } = req.body; // "pending", "confirmed", "cancelled"
+    const { status } = req.body;
 
     const b = await Booking.findByIdAndUpdate(
       req.params.id,
@@ -60,7 +62,18 @@ router.put("/bookings/:id/status", adminAuth, async (req, res) => {
 
     if (!b) return res.status(404).json({ message: "Booking not found" });
 
+    // ⭐ Send Email to User
+    sendStatusChangeEmail({
+      email: b.user_email,
+      name: b.user_name,
+      service_name: b.service_name,
+      status,
+      date: b.date,
+      time: b.time
+    });
+
     res.json({ message: "Status updated", booking: b });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -79,7 +92,40 @@ router.put("/bookings/:id/datetime", adminAuth, async (req, res) => {
 
     if (!b) return res.status(404).json({ message: "Booking not found" });
 
+    // ⭐ Notify User
+    sendDateTimeChangeEmail({
+      email: b.user_email,
+      name: b.user_name,
+      service_name: b.service_name,
+      date,
+      time
+    });
+
     res.json({ message: "Date & time updated", booking: b });
+
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+
+router.get("/users", adminAuth, async (req, res) => {
+  try {
+    const users = await User.find().sort({ createdAt: -1 });
+
+    const formatted = users.map(u => ({
+      id: u._id,
+      login_id: u.login_id,
+      name: u.name,
+      email: u.email,
+      mobile: u.mobile,
+      createdAt: u.createdAt
+    }));
+
+    res.json({ users: formatted });
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

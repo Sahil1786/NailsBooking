@@ -2,29 +2,19 @@ const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema(
   {
-    user_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true
-    },
+    user_id: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
 
-    service_type: {
-      type: String,
-      enum: ["makeup", "nails"],
-      required: true
-    },
+    user_name: String,   
+    user_email: String,  
+    user_mobile: String, 
 
-    service_name: { type: String, required: true }, // e.g. Bridal Makeup, Gel Nails
+    service_type: String,
+    service_name: String,
 
     date: String,
     time: String,
     notes: String,
-
-    status: {
-      type: String,
-      enum: ["pending", "confirmed", "cancelled"],
-      default: "pending"
-    }
+    status: { type: String, default: "pending" }
   },
   { timestamps: true }
 );
